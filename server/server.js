@@ -1,7 +1,10 @@
 require('dotenv').config()
 const axios = require('axios');
 const express = require('express');
+
 const Log = require('./helper/Log');
+const Chefkoch = require('./helper/chefkoch_api');
+const Template = require('./helper/template');
 
 const app =  express();
 app.use(express.json());
@@ -15,27 +18,31 @@ app.use(function (req, res, next) {
 
 app.get('/tweetDailyRecipe',async (req, res, next) => {
     try{
-        let data = JSON.stringify({
-            "text": "hello world 2"
-        });
-
-        let config = {
-            method: 'post',
-            url: `${process.env.TWITTER_API}/2/tweets`,
-            headers: {
-                'Authorization': process.env.AUTH_STRING,
-                'Content-Type': 'application/json'
-            },
-            data : data
-        };
-
-        await axios(config)
-            .then(function (response) {
-                res.json(response.data)
-            })
-            .catch(function (error) {
-                res.json(error.toString())
+        let categorie = req.query.categorie
+        await (Chefkoch.getWeekRecipes(categorie)).then(async recipes => {
+            let tweet = await Template.compile("tweet.html",recipes[0])
+            let data = JSON.stringify({
+                "text": tweet
             });
+
+            let config = {
+                method: 'post',
+                url: `${process.env.TWITTER_API}/2/tweets`,
+                headers: {
+                    'Authorization': process.env.AUTH_STRING,
+                    'Content-Type': 'application/json'
+                },
+                data: data
+            };
+
+            await axios(config)
+                .then(function (response) {
+                    res.json(response.data)
+                })
+                .catch(function (error) {
+                    res.json(error.toString())
+                });
+        })
     }catch(e){
         console.log(e)
         res.json(e.toString())
