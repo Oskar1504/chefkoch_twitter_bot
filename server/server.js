@@ -37,6 +37,7 @@ app.get('/tweetDailyRecipe',async (req, res, next) => {
 
             await axios(config)
                 .then(function (response) {
+                    Log.success(`Succesfully tweeted. hehe.`)
                     res.json(response.data)
                 })
                 .catch(function (error) {
@@ -52,7 +53,7 @@ app.get('/tweetDailyRecipe',async (req, res, next) => {
 
 app.post('/twitterfake/*',async (req, res, next) => {
     try{
-        console.log("twitterfake url", req.body)
+        console.log("twitterfake url")
         res.json(req.body)
     }catch(e){
         console.log(e)
