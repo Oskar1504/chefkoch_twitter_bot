@@ -18,9 +18,10 @@ app.use(function (req, res, next) {
 
 app.get('/tweetDailyRecipe',async (req, res, next) => {
     try{
-        let categorie = req.query.categorie
+        let categorie = req.query.categorie,
+            day = new Date().getDay() - 1
         await (Chefkoch.getWeekRecipes(categorie)).then(async recipes => {
-            let tweet = await Template.compile("tweet.html",recipes[0])
+            let tweet = await Template.compile("tweet.html",recipes[day])
             let data = JSON.stringify({
                 "text": tweet
             });
