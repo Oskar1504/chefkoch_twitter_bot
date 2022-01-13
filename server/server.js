@@ -5,6 +5,8 @@ const express = require('express');
 const Log = require('./helper/Log');
 const Chefkoch = require('./helper/chefkoch_api');
 const Template = require('./helper/template');
+const Header = require('./helper/header');
+
 
 const app =  express();
 app.use(express.json());
@@ -50,6 +52,40 @@ app.get('/tweetDailyRecipe',async (req, res, next) => {
         res.json(e.toString())
     }
 });
+
+
+app.get('/tweetTest',async (req, res, next) => {
+
+    const request = {
+        url: `${process.env.TWITTER_API}/2/tweets`,
+        method: 'POST',
+        body: {
+            "text":"hallo"
+        }
+    };
+
+    const authHeader = Header.getAuthHeaderForRequest(request);
+
+    console.log(authHeader)
+
+    let config = {
+        method: 'post',
+        url: request.url,
+        headers: authHeader,
+        data: request.body
+    };
+
+    await axios(config)
+        .then(function (response) {
+            Log.success(`Succesfully tweeted. hehe.`)
+            res.json(response.data)
+        })
+        .catch(function (error) {
+            console.log(error)
+            res.json(error.toString())
+        });
+});
+
 
 
 app.post('/twitterfake/*',async (req, res, next) => {
