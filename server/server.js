@@ -110,7 +110,18 @@ app.post('/ping',async (req, res, next) => {
     }
 });
 
-const port = 42042;
+const port = process.env.PORT;
 app.listen(port, () =>{
-    console.log(`server is running at http://localhost:${port}`)
+    console.log(`${process.env.PROJECT_NAME} is running at http://localhost:${process.env.PORT}`)
+    axios({
+        method:"post",
+        url: "http://localhost:42015/app/register",
+        data:{
+            project_name: process.env.PROJECT_NAME,
+            project_description: process.env.PROJECT_DESCRIPTION,
+            project_port: process.env.PORT
+        }
+    })
+        .then(response => Log.success(response.data.data))
+        .catch(error => Log.error(error.toString()))
 })
