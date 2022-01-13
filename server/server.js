@@ -24,18 +24,21 @@ app.get('/tweetDailyRecipe',async (req, res, next) => {
             day = new Date().getDay() - 1
         await (Chefkoch.getWeekRecipes(categorie)).then(async recipes => {
             let tweet = await Template.compile("tweet.html",recipes[day])
-            let data = JSON.stringify({
-                "text": tweet
-            });
+            const request = {
+                url: `${process.env.TWITTER_API}/2/tweets`,
+                method: 'POST',
+                body: {
+                    "text":tweet
+                }
+            };
+
+            const authHeader = Header.getAuthHeaderForRequest(request);
 
             let config = {
                 method: 'post',
-                url: `${process.env.TWITTER_API}/2/tweets`,
-                headers: {
-                    'Authorization': process.env.AUTH_STRING,
-                    'Content-Type': 'application/json'
-                },
-                data: data
+                url: request.url,
+                headers: authHeader,
+                data: request.body
             };
 
             await axios(config)
@@ -60,13 +63,11 @@ app.get('/tweetTest',async (req, res, next) => {
         url: `${process.env.TWITTER_API}/2/tweets`,
         method: 'POST',
         body: {
-            "text":"hallo"
+            "text":"Hello World."
         }
     };
 
     const authHeader = Header.getAuthHeaderForRequest(request);
-
-    console.log(authHeader)
 
     let config = {
         method: 'post',
