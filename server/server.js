@@ -99,6 +99,17 @@ app.post('/twitterfake/*',async (req, res, next) => {
     }
 });
 
+
+app.post('/ping',async (req, res, next) => {
+    try{
+        console.log("Pong!")
+        res.json({data:"Pong!", req_body:req.body})
+    }catch(e){
+        console.log(e)
+        res.json(e.toString())
+    }
+});
+
 const port = 42042;
 app.listen(port, () =>{
     console.log(`server is running at http://localhost:${port}`)
