@@ -1,7 +1,7 @@
 const fs = require("fs")
 
 module.exports = {
-    async compile(template, data) {
+    async compile(template, data = {}) {
         let template_string = fs.readFileSync(__dirname + "/../templates/" + template).toString()
 
         //replace all

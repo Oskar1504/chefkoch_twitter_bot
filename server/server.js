@@ -22,33 +22,44 @@ app.get('/tweetDailyRecipe',async (req, res, next) => {
     try{
         let categorie = req.query.categorie,
             day = new Date().getDay() - 1
+        if(day == -1 ){
+            day = 6
+        }
         await (Chefkoch.getWeekRecipes(categorie)).then(async recipes => {
             let tweet = await Template.compile("tweet.html",recipes[day])
-            const request = {
-                url: `${process.env.TWITTER_API}/2/tweets`,
-                method: 'POST',
-                body: {
-                    "text":tweet
-                }
-            };
 
-            const authHeader = Header.getAuthHeaderForRequest(request);
+            if(recipes[day] != undefined) {
 
-            let config = {
-                method: 'post',
-                url: request.url,
-                headers: authHeader,
-                data: request.body
-            };
 
-            await axios(config)
-                .then(function (response) {
-                    Log.success(`Succesfully tweeted. hehe.`)
-                    res.json(response.data)
-                })
-                .catch(function (error) {
-                    res.json(error.toString())
-                });
+                const request = {
+                    url: `${process.env.TWITTER_API}/2/tweets`,
+                    method: 'POST',
+                    body: {
+                        "text": tweet
+                    }
+                };
+
+                const authHeader = Header.getAuthHeaderForRequest(request);
+
+                let config = {
+                    method: 'post',
+                    url: request.url,
+                    headers: authHeader,
+                    data: request.body
+                };
+
+                await axios(config)
+                    .then(function (response) {
+                        Log.success(`Succesfully tweeted. hehe.`)
+                        res.json(response.data)
+                    })
+                    .catch(function (error) {
+                        res.json(error.toString())
+                    });
+            }else{
+                Log.error(`Recipe undefined.Day: ${day} Categorie: ${categorie}`)
+                res.json({error:`Recipe undefined.Day: ${day} Categorie: ${categorie}`})
+            }
         })
     }catch(e){
         console.log(e)
